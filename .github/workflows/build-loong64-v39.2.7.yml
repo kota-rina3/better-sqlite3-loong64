@@ -1,4 +1,4 @@
-name: build-loong64
+name: build-loong64-v39.2.7
 
 on:
   workflow_dispatch:
@@ -26,10 +26,11 @@ jobs:
             
             apt update
             apt install -y build-essential python3 python3-setuptools ca-certificates curl xz-utils
-            curl -fsSL "https://unofficial-builds.nodejs.org/download/release/v26.4.0/node-v26.4.0-linux-loong64.tar.xz" -o /tmp/node.tar.xz
+            curl -fsSL "https://unofficial-builds.nodejs.org/download/release/v22.21.1/node-v22.21.1-linux-loong64.tar.xz" -o /tmp/node.tar.xz
             tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1
             node -v
             npm -v
+            npm install -g node-gyp@11
             npm install better-sqlite3@12.8.0 --build-from-source --runtime=electron --target=39.2.7 --arch=loong64 --dist-url=https://electronjs.org/headers --foreground-scripts
             npm install node-pty@1.1.0 --build-from-source
 
@@ -47,10 +48,10 @@ jobs:
             ls -l dist/loong64
 
             # ---- 打包 ----
-            tar -czf dist/renpy-py3_13-glibc2_41-loong64.tar.gz -C dist/loong64 .
+            tar -czf dist/build-loong64-v39.2.7.tar.gz -C dist/loong64 .
           '
     - name: 上传构建产物
       uses: actions/upload-artifact@v4
       with:
-        name: build-loong64build-loong64
+        name: build-loong64-v39.2.7
         path: dist/*.tar.gz
