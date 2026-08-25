@@ -30,7 +30,7 @@ jobs:
             tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1
             node -v
             npm -v
-            npm install better-sqlite3@12.8.0 --build-from-source
+            npm install better-sqlite3@12.8.0 --build-from-source --runtime=electron --target=39.2.7 --arch=loong64 --dist-url=https://electronjs.org/headers --foreground-scripts
             npm install node-pty@1.1.0 --build-from-source
 
             # ---- 收集 .node 产物 ----
