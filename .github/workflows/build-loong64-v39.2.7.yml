@@ -33,25 +33,9 @@ jobs:
             npm install -g node-gyp@11
             npm install better-sqlite3@12.8.0 --build-from-source --runtime=electron --target=39.2.7 --arch=loong64 --dist-url=https://electronjs.org/headers --foreground-scripts
             npm install node-pty@1.1.0 --build-from-source
-
-            # ---- 收集 .node 产物 ----
-            mkdir -p dist/loong64
-
-            cp node_modules/better-sqlite3/build/Release/better_sqlite3.node dist/loong64/ 2>/dev/null || \
-              find node_modules/better-sqlite3 -name "*.node" -exec cp {} dist/loong64/ \;
-
-            cp node_modules/node-pty/build/Release/pty.node dist/loong64/ 2>/dev/null || \
-              find node_modules/node-pty -name "*.node" -exec cp {} dist/loong64/ \;
-            # node-pty 运行时需要的非 .node 可执行文件
-            cp node_modules/node-pty/build/Release/spawn-helper dist/loong64/ 2>/dev/null || true
-
-            ls -l dist/loong64
-
-            # ---- 打包 ----
-            tar -czf dist/build-loong64-v39.2.7.tar.gz -C dist/loong64 .
           '
     - name: 上传构建产物
       uses: actions/upload-artifact@v4
       with:
         name: build-loong64-v39.2.7
-        path: dist/*.tar.gz
+        path: node_modules/
