@@ -44,4 +44,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: build-loong64-v42.3.0
-        path: node_modules/
+        path: ./
