@@ -34,12 +34,15 @@ jobs:
             # 1) 全量依赖：sqlite3 走 N-API 对 Node 22.21.1 编译，headers 官方存在
             npm install --foreground-scripts
 
-            # 2) 显式安装 better-sqlite3 并对 Electron 42.3.0 编译
-            #    （此时 sqlite3 已编好、依赖已满足，npm 不会重跑其安装脚本，404 泄漏路径不再触发）
-            npm install better-sqlite3@13.0.3 \
-              --build-from-source --runtime=electron --target=42.3.0 \
-              --arch=loong64 --dist-url=https://electronjs.org/headers \
-              --foreground-scripts
+            # 2) better-sqlite3 v13 无 install 脚本（prebuildify 模型，prebuilds/ 里没有 loong64），
+            #    需装包后手动 node-gyp 编译；产物落 build/Release/，运行时 loader 会自动回落加载
+            npm install -g node-gyp@11
+            npm install better-sqlite3@13.0.3 --no-save --no-audit --no-fund
+            cd node_modules/better-sqlite3
+            node-gyp rebuild --release --force_build=1 \
+              --runtime=electron --target=42.3.0 --arch=loong64 \
+              --dist-url=https://electronjs.org/headers
+            cd /workspace
 
             # 3) 自检：产物缺失直接失败，避免上传步骤才发现
             test -f node_modules/better-sqlite3/build/Release/better_sqlite3.node \
