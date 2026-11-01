@@ -30,8 +30,15 @@ jobs:
             tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1
             node -v
             npm -v
-            npm install -g node-gyp@11
-            npm install better-sqlite3@13.0.3 --build-from-source --runtime=electron --target=42.3.0 --arch=loong64 --dist-url=https://electronjs.org/headers --foreground-scripts
+
+            npm install --foreground-scripts
+
+            # 2) 单独针对 Electron 42.3.0 重编 better-sqlite3
+            npm rebuild better-sqlite3 \
+              --runtime=electron --target=42.3.0 \
+              --arch=loong64 \
+              --dist-url=https://electronjs.org/headers \
+              --foreground-scripts
           '
     - name: 上传构建产物
       uses: actions/upload-artifact@v4
