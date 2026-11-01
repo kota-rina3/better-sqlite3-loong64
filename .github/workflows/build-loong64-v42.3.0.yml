@@ -23,7 +23,7 @@ jobs:
           linuxdeepin/deepin:crimson-loong64-v1.6.0 \
           bash -c '
             set -e
-            
+
             apt update
             apt install -y build-essential python3 python3-setuptools ca-certificates curl xz-utils
             curl -fsSL "https://unofficial-builds.nodejs.org/download/release/v22.21.1/node-v22.21.1-linux-loong64.tar.xz" -o /tmp/node.tar.xz
@@ -31,17 +31,26 @@ jobs:
             node -v
             npm -v
 
+            # 1) 全量依赖：sqlite3 走 N-API 对 Node 22.21.1 编译，headers 官方存在
             npm install --foreground-scripts
 
-            # 2) 单独针对 Electron 42.3.0 重编 better-sqlite3
-            npm rebuild better-sqlite3 \
-              --runtime=electron --target=42.3.0 \
-              --arch=loong64 \
-              --dist-url=https://electronjs.org/headers \
+            # 2) 显式安装 better-sqlite3 并对 Electron 42.3.0 编译
+            #    （此时 sqlite3 已编好、依赖已满足，npm 不会重跑其安装脚本，404 泄漏路径不再触发）
+            npm install better-sqlite3@13.0.3 \
+              --build-from-source --runtime=electron --target=42.3.0 \
+              --arch=loong64 --dist-url=https://electronjs.org/headers \
               --foreground-scripts
+
+            # 3) 自检：产物缺失直接失败，避免上传步骤才发现
+            test -f node_modules/better-sqlite3/build/Release/better_sqlite3.node \
+              || { echo "!! better_sqlite3.node 未生成"; exit 1; }
+            ls -l node_modules/better-sqlite3/build/Release/
           '
+
     - name: 上传构建产物
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: build-loong64-v42.3.0
-        path: ./
+        path: node_modules/
+        if-no-files-found: error
